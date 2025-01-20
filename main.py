@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import os
 import discord
-from slash_commands.get_level import get_level_by_id, get_level_by_name 
+from slash_commands.get_level import get_level_by_position, get_level_by_name 
 from slash_commands.add_level import add_level
 
 load_dotenv()
@@ -11,10 +11,10 @@ bot = discord.Bot()
 
 guilds = [1330730208046743652]
 
-@bot.slash_command(guilds=guilds, name="get_level_by_id", description="Gets a level by list position")
+@bot.slash_command(guilds=guilds, name="get_level_by_position", description="Gets a level by list position")
 @discord.option("level_position", type=discord.SlashCommandOptionType.integer)
-async def get_level_by_id_cmd(ctx: discord.ApplicationContext, level_position: int):
-    embed = get_level_by_id(level_position)
+async def get_level_by_position_cmd(ctx: discord.ApplicationContext, level_position: int):
+    embed = get_level_by_position(level_position)
     if embed == None:
         await ctx.respond(f"Invalid level position **( {level_position} )**")
         return
