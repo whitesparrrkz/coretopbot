@@ -10,11 +10,9 @@ def get_level_by_position(level_position: int):
 
         if response.status_code == 200:
             level = response.json()
-        else:
-            print('Error:', response.status_code)
+            
     except requests.exceptions.RequestException as e:
-        print('Error:', e)
-        return None
+        return makeEmbedFailure(level_position)
     
     return makeEmbed(level)
 
@@ -26,14 +24,17 @@ def get_level_by_name(level_name: str):
 
         if response.status_code == 200:
             level = response.json()
-        else:
-            print('Error:', response.status_code)
+
     except requests.exceptions.RequestException as e:
-        print('Error:', e)
-        return None
+        return makeEmbedFailure(level_name)
     
     return makeEmbed(level)
 
+def makeEmbedFailure(s):
+    embed = discord.Embed(title="Get Level Failed", color=discord.Colour.red())
+    embed.add_field(name="Invalid Position/Name", value=s)
+
+    return embed
 
 def makeEmbed(level):
     embed = discord.Embed(
