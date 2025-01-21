@@ -22,7 +22,7 @@ tiers = {
     "t8": "T8 Extreme Demon",
 }
 
-class AddLevelModalFirst(discord.ui.Modal):
+class AddLevelModal(discord.ui.Modal):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
@@ -96,4 +96,4 @@ class AddLevelModalFirst(discord.ui.Modal):
         await interaction.response.send_message(embed=embed)
 
 def add_level():
-    return AddLevelModalFirst(title="Add Level")
+    return AddLevelModal(title="Add Level")

@@ -10,7 +10,7 @@ def get_level_by_position(level_position: int):
 
         if response.status_code == 200:
             level = response.json()
-            
+
     except requests.exceptions.RequestException as e:
         return makeEmbedFailure(level_position)
     
@@ -27,6 +27,20 @@ def get_level_by_name(level_name: str):
 
     except requests.exceptions.RequestException as e:
         return makeEmbedFailure(level_name)
+    
+    return makeEmbed(level)
+
+def get_last_level():
+    url = f"http://localhost:8080/coretop/api/getLastLevel"
+
+    try:
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            level = response.json()
+
+    except requests.exceptions.RequestException as e:
+        return discord.Embed(title="No Levels Exist", color=discord.Colour.red())
     
     return makeEmbed(level)
 
