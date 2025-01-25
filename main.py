@@ -41,7 +41,7 @@ async def add_level_cmd(ctx: discord.ApplicationContext):
     modal = add_level()
     await ctx.send_modal(modal=modal)
 
-@bot.slash_command(guilds=guilds, name="delete_level", description="Deletes a new level")
+@bot.slash_command(guilds=guilds, name="delete_level", description="Deletes a level")
 @discord.option("level_position", type=discord.SlashCommandOptionType.integer)
 async def delete_level_cmd(ctx: discord.ApplicationContext, level_position: int):
     embed = delete_level(level_position)

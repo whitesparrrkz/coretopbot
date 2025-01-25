@@ -3,7 +3,7 @@ import requests
 
 range = 10
 
-class MyView(discord.ui.View):
+class ListButtons(discord.ui.View):
     def __init__(self, timeout = 180):
         super().__init__()
 
@@ -53,4 +53,4 @@ def makeEmbed(levels, pos):
     return embed
 
 def list_levels():
-    return makeEmbed(getLevels(1), 1), MyView()
+    return makeEmbed(getLevels(1), 1), ListButtons()
