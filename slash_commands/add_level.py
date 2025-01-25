@@ -2,7 +2,6 @@ from dotenv import load_dotenv
 import os
 import discord
 import requests
-import json
 
 load_dotenv()
 coretop_Token: str = os.getenv("CORETOP_TOKEN")
