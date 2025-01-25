@@ -41,13 +41,11 @@ def getLevels(pos: int):
 
 def makeEmbed(levels, pos):
     embed = discord.Embed(title="The CORETOP List", color=discord.Colour.blue())
+    
 
-    values=""
 
     for level in levels:
-        values += f"**{str(level["level_position"])}.** `{level["level_name"]}`\n"
-
-    embed.add_field(name="Levels:", value=values, inline=True)
+        embed.add_field(name=f"**{str(level["level_position"])}. {level["level_name"]} - {level["level_creator"]}**\n", value=f"Victors: {level["get_victors"]}" inline=True)
 
     embed.set_footer(text=f"Showing levels {pos}-{pos+range-1}")
     return embed
