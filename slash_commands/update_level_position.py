@@ -8,7 +8,7 @@ coretop_Token: str = os.getenv("CORETOP_TOKEN")
 
 def update_level_position(old_pos, new_pos):
     headers = {"token": coretop_Token}
-    url = f"http://localhost:8080/coretop/api/updateLevelPosition?old_position={old_pos}&new_position={new_pos}"
+    url = f"http://localhost:8080/coretop/api/level/updateLevelPosition?old_position={old_pos}&new_position={new_pos}"
 
     try:
         response = requests.put(url, headers=headers)

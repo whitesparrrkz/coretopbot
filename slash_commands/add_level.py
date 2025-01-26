@@ -26,20 +26,19 @@ class AddLevelModal(discord.ui.Modal):
         super().__init__(*args, **kwargs)
 
         self.add_item(discord.ui.InputText(label="Level Name;Level ID", max_length=35))
-        self.add_item(discord.ui.InputText(label="Level Position;Level First Victor", max_length=35))
+        self.add_item(discord.ui.InputText(label="Level Position"))
         self.add_item(discord.ui.InputText(label="Level Creators", max_length=50))
         self.add_item(discord.ui.InputText(label="Level Tier", max_length=20))
         self.add_item(discord.ui.InputText(label="Level Video URL (MUST BE youtu.be)", max_length=80, placeholder="https://youtu.be/"))
 
     async def callback(self, interaction: discord.Interaction):
         split1 = self.children[0].value.split(';')
-        split2 = self.children[1].value.split(';')
 
         failed = False
         embedFailure = discord.Embed(title="Add Level Failed", color=discord.Colour.red())
-        if not split2[0].isdigit() or int(split2[0])<=0:
+        if not self.children[1].isdigit() or int(self.children[1])<=0:
             failed = True
-            embedFailure.add_field(name="Invalid Position", value=split2[0])
+            embedFailure.add_field(name="Invalid Position", value=self.children[1])
         
         if not split1[1].isdigit() and len(split1[1])>20:
             failed = True
@@ -58,11 +57,10 @@ class AddLevelModal(discord.ui.Modal):
             await interaction.response.send_message(embed=embedFailure)
             return
         
-        url = f"http://localhost:8080/coretop/api/addLevel"
+        url = f"http://localhost:8080/coretop/api/level/addLevel"
         data = {
-            "level_position": int(split2[0]),
+            "level_position": self.children[1],
             "level_name": split1[0],
-            "level_first_victor": split2[1],
             "level_creator": self.children[2].value,
             "level_id": split1[1],
             "level_tier": tiers[(self.children[3].value).lower()],
@@ -85,8 +83,7 @@ class AddLevelModal(discord.ui.Modal):
 
         embed = discord.Embed(title="Level Added", color=discord.Colour.green())
         embed.add_field(name="Level Name", value=split1[0])
-        embed.add_field(name="Level Position", value=split2[0])
-        embed.add_field(name="Level First Victor", value=split2[1])
+        embed.add_field(name="Level Position", value=self.children[1])
         embed.add_field(name="Level Creators", value=self.children[2].value)
         embed.add_field(name="Level Tier", value=self.children[3].value)
         embed.add_field(name="Level ID", value=split1[1])

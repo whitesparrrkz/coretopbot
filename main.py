@@ -1,16 +1,21 @@
+import discord.ext.commands
 from dotenv import load_dotenv
 import os
 import discord
+import discord.ext
 from slash_commands.get_level import get_level_by_position, get_level_by_name, get_last_level
 from slash_commands.list_levels import list_levels
 from slash_commands.add_level import add_level
 from slash_commands.delete_level import delete_level
 from slash_commands.update_level_position import update_level_position
+from slash_commands.add_victor import add_victor
 
 load_dotenv()
 Token: str = os.getenv("DISCORD_TOKEN")
 
 bot = discord.Bot()
+
+commands = discord.ext.commands
 
 guilds = [1330730208046743652]
 
@@ -37,12 +42,14 @@ async def list_levels_cmd(ctx):
     await ctx.respond(embed=embed,view=view)
 
 @bot.slash_command(guilds=guilds, name="add_level", description="Adds a new level")
+@commands.has_role("coretop admin")
 async def add_level_cmd(ctx: discord.ApplicationContext):
     modal = add_level()
     await ctx.send_modal(modal=modal)
 
 @bot.slash_command(guilds=guilds, name="delete_level", description="Deletes a level")
 @discord.option("level_position", type=discord.SlashCommandOptionType.integer)
+@commands.has_role("coretop admin")
 async def delete_level_cmd(ctx: discord.ApplicationContext, level_position: int):
     embed = delete_level(level_position)
     await ctx.respond(embed=embed)
@@ -50,8 +57,17 @@ async def delete_level_cmd(ctx: discord.ApplicationContext, level_position: int)
 @bot.slash_command(guilds=guilds, name="update_level_position", description="Changes the position of a level")
 @discord.option("old_position", type=discord.SlashCommandOptionType.integer)
 @discord.option("new_position", type=discord.SlashCommandOptionType.integer)
+@commands.has_role("coretop admin")
 async def update_level_position_cmd(ctx: discord.ApplicationContext, old_position: int, new_position):
     embed = update_level_position(old_position, new_position)
+    await ctx.respond(embed=embed)
+
+@bot.slash_command(guilds=guilds, name="add_victor_by_level_position", description="Adds a victor to a level by level position")
+@discord.option("victor_name", type=discord.SlashCommandOptionType.string)
+@discord.option("level_position", type=discord.SlashCommandOptionType.integer)
+@commands.has_role("coretop admin")
+async def add_victor_by_level_position_cmd(ctx: discord.ApplicationContext, victor_name: str, level_position):
+    embed = add_victor(victor_name, level_position)
     await ctx.respond(embed=embed)
 
 def main():

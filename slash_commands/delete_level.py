@@ -8,7 +8,7 @@ coretop_Token: str = os.getenv("CORETOP_TOKEN")
 
 def delete_level(level_position):
     headers = {"token": coretop_Token}
-    url = f"http://localhost:8080/coretop/api/deleteLevel?position={level_position}"
+    url = f"http://localhost:8080/coretop/api/level/deleteLevel?position={level_position}"
 
     try:
         response = requests.delete(url, headers=headers)
