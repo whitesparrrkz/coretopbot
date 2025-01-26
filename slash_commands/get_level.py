@@ -89,7 +89,7 @@ def makeEmbed(level, victors):
     embed.add_field(name="Level Position", value=str(level["level_position"]), inline=True)
     embed.add_field(name="Level Creator(s)", value=level["level_creator"], inline=True)
     embed.add_field(name="Level Tier", value=level["level_tier"], inline=True)
-    embed.add_field(name="Level ID", value=level["level_id"], inline=True)
     embed.add_field(name="Level Victors", value=victorsstr, inline=True)
+    embed.add_field(name="Level ID", value=level["level_id"], inline=True)
     embed.set_image(url=get_video_thumbnail(level["level_video"]))
     return embed
