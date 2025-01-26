@@ -19,6 +19,8 @@ commands = discord.ext.commands
 
 guilds = [1330730208046743652]
 
+announcements_id = 1332912849705631795
+
 @bot.slash_command(guilds=guilds, name="get_level_by_position", description="Gets a level by list position")
 @discord.option("level_position", type=discord.SlashCommandOptionType.integer)
 async def get_level_by_position_cmd(ctx: discord.ApplicationContext, level_position: int):
@@ -42,9 +44,10 @@ async def list_levels_cmd(ctx):
     await ctx.respond(embed=embed,view=view)
 
 @bot.slash_command(guilds=guilds, name="add_level", description="Adds a new level")
+@discord.option("send_announcement", type=discord.SlashCommandOptionType.boolean)
 @commands.has_role("coretop admin")
-async def add_level_cmd(ctx: discord.ApplicationContext):
-    modal = add_level()
+async def add_level_cmd(ctx: discord.ApplicationContext, send_announcement):
+    modal = add_level(bot, announcements_id, send_announcement)
     await ctx.send_modal(modal=modal)
 
 @bot.slash_command(guilds=guilds, name="delete_level", description="Deletes a level")
@@ -58,7 +61,7 @@ async def delete_level_cmd(ctx: discord.ApplicationContext, level_position: int)
 @discord.option("old_position", type=discord.SlashCommandOptionType.integer)
 @discord.option("new_position", type=discord.SlashCommandOptionType.integer)
 @commands.has_role("coretop admin")
-async def update_level_position_cmd(ctx: discord.ApplicationContext, old_position: int, new_position):
+async def update_level_position_cmd(ctx: discord.ApplicationContext, old_position, new_position):
     embed = update_level_position(old_position, new_position)
     await ctx.respond(embed=embed)
 
@@ -69,6 +72,9 @@ async def update_level_position_cmd(ctx: discord.ApplicationContext, old_positio
 async def add_victor_by_level_position_cmd(ctx: discord.ApplicationContext, victor_name: str, level_position):
     embed = add_victor(victor_name, level_position)
     await ctx.respond(embed=embed)
+
+def get_channel(id:int):
+    return bot.get_channel(id)
 
 def main():
     print("Bot is running.")

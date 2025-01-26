@@ -22,8 +22,12 @@ tiers = {
 }
 
 class AddLevelModal(discord.ui.Modal):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, send_announcement, announcements_id, bot: discord.Bot, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+        
+        self.send_announcement = send_announcement
+        self.announcements_id = announcements_id
+        self.bot = bot
 
         self.add_item(discord.ui.InputText(label="Level Name;Level ID", max_length=35))
         self.add_item(discord.ui.InputText(label="Level Position"))
@@ -36,7 +40,7 @@ class AddLevelModal(discord.ui.Modal):
 
         failed = False
         embedFailure = discord.Embed(title="Add Level Failed", color=discord.Colour.red())
-        if not self.children[1].isdigit() or int(self.children[1])<=0:
+        if not self.children[1].value.isdigit() or int(self.children[1].value)<=0:
             failed = True
             embedFailure.add_field(name="Invalid Position", value=self.children[1])
         
@@ -59,7 +63,7 @@ class AddLevelModal(discord.ui.Modal):
         
         url = f"http://localhost:8080/coretop/api/level/addLevel"
         data = {
-            "level_position": self.children[1],
+            "level_position": self.children[1].value,
             "level_name": split1[0],
             "level_creator": self.children[2].value,
             "level_id": split1[1],
@@ -83,13 +87,17 @@ class AddLevelModal(discord.ui.Modal):
 
         embed = discord.Embed(title="Level Added", color=discord.Colour.green())
         embed.add_field(name="Level Name", value=split1[0])
-        embed.add_field(name="Level Position", value=self.children[1])
+        embed.add_field(name="Level Position", value=self.children[1].value)
         embed.add_field(name="Level Creators", value=self.children[2].value)
         embed.add_field(name="Level Tier", value=self.children[3].value)
         embed.add_field(name="Level ID", value=split1[1])
         embed.add_field(name="Level Video URL", value=self.children[4].value)
 
         await interaction.response.send_message(embed=embed)
+        if self.send_announcement:
+            channel = self.bot.get_channel(self.announcements_id)
+            await channel.send("TEST level added because i gott a finish this latr when more levels")
 
-def add_level():
-    return AddLevelModal(title="Add Level")
+def add_level(bot, announcements_id, send_announcement):
+    return AddLevelModal(title="Add Level", send_announcement=send_announcement, announcements_id=announcements_id, bot=bot)
+    

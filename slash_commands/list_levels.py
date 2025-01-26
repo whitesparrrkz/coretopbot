@@ -38,7 +38,7 @@ def getLevels(pos: int):
             raise requests.exceptions.RequestException()
         levels = response.json()
 
-        for i in range(1, len(levels)+1):
+        for i in range(pos, pos+len(levels)):
             url = f"http://localhost:8080/coretop/api/victor/getFirstVictorByLevelPosition?position={i}"
             response = requests.get(url)
             if response.status_code != 200:
