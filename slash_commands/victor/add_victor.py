@@ -7,7 +7,7 @@ load_dotenv()
 coretop_Token: str = os.getenv("CORETOP_TOKEN")
 
 def add_victor(victor_name, level_position):
-    url = f"http://localhost:8080/coretop/api/victor/addVictorByLevelPosition?victorName={victor_name}&levelPosition={level_position}"
+    url = f"http://localhost:8080/coretop/api/victor/addVictorByLevelPosition?victor_name={victor_name}&level_position={level_position}"
     headers = {"token": coretop_Token}
 
     try:

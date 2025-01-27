@@ -6,20 +6,7 @@ import requests
 load_dotenv()
 coretop_Token: str = os.getenv("CORETOP_TOKEN")
 
-tiers = {
-    "easy": "Easy Demon",
-    "medium": "Medium Demon",
-    "hard": "Hard Demon",
-    "insane": "Insane Demon",
-    "t1": "T1 Extreme Demon",
-    "t2": "T2 Extreme Demon",
-    "t3": "T3 Extreme Demon",
-    "t4": "T4 Extreme Demon",
-    "t5": "T5 Extreme Demon",
-    "t6": "T6 Extreme Demon",
-    "t7": "T7 Extreme Demon",
-    "t8": "T8 Extreme Demon",
-}
+tiers = ['t8', 't7', 't6', 't5', 't4', 't3', 't2', 't1', 'insane', 'hard', 'medium', 'easy']
 
 class AddLevelModal(discord.ui.Modal):
     def __init__(self, send_announcement, announcements_id, bot: discord.Bot, *args, **kwargs) -> None:
@@ -67,7 +54,7 @@ class AddLevelModal(discord.ui.Modal):
             "level_name": split1[0],
             "level_creator": self.children[2].value,
             "level_id": split1[1],
-            "level_tier": tiers[(self.children[3].value).lower()],
+            "level_tier": (self.children[3].value).lower(),
             "level_video": self.children[4].value
         }
 
