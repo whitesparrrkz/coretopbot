@@ -13,8 +13,11 @@ from slash_commands.level.update_level_position import update_level_position
 from slash_commands.victor.add_victor import add_victor
 from slash_commands.victor.pop_victor import pop_victor
 from slash_commands.victor.get_victor import get_victor
+from slash_commands.victor.add_junkyard_victor import add_junkyard_victor
+from slash_commands.victor.pop_junkyard_victor import pop_junkyard_victor
 
 from slash_commands.junkyard.add_junkyard_level import add_junkyard_level
+from slash_commands.junkyard.get_junkyard_level import get_junkyard_level
 from slash_commands.junkyard.list_junkyard_levels import list_junkyard_levels
 from slash_commands.junkyard.delete_junkyard_level import delete_junkyard_level
 
@@ -98,12 +101,33 @@ async def get_victor_cmd(ctx: discord.ApplicationContext, victor_name: str):
     embed, file = get_victor(victor_name)
     await ctx.respond(embed=embed, files=[file])
 
+@victor.command(name="add_junkyard_victor", description="Adds a junkyard victor by level name")
+@discord.option("victor_name", type=discord.SlashCommandOptionType.string)
+@discord.option("level_name", type=discord.SlashCommandOptionType.string)
+@commands.has_role("coretop admin")
+async def add_junkyard_victor_cmd(ctx: discord.ApplicationContext, victor_name: str, level_name):
+    embed = add_junkyard_victor(victor_name, level_name)
+    await ctx.respond(embed=embed)
+
+@victor.command(name="pop_junkyard_victor", description="Removes the last junkyard victor by level name")
+@discord.option("level_name", type=discord.SlashCommandOptionType.string)
+@commands.has_role("coretop admin")
+async def pop_junkyard_victor_cmd(ctx: discord.ApplicationContext, level_name):
+    embed = pop_junkyard_victor(level_name)
+    await ctx.respond(embed=embed)
+
 @junkyard.command(name="add_junkyard_level", description="Adds a new junkyard level (Easy/Medium demons)")
 @discord.option("level_name", type=discord.SlashCommandOptionType.string)
 @discord.option("level_tier", type=discord.SlashCommandOptionType.string)
 @discord.option("level_url", type=discord.SlashCommandOptionType.string)
 async def add_junkyard_level_cmd(ctx: discord.ApplicationContext, level_name, level_tier, video_url):
     embed = add_junkyard_level(level_name, level_tier, video_url)
+    await ctx.respond(embed=embed)
+
+@junkyard.command(name="get_junkyard_level", description="Gets a junkyard level by name")
+@discord.option("level_name", type=discord.SlashCommandOptionType.string)
+async def get_junkyard_level_cmd(ctx: discord.ApplicationContext, level_name):
+    embed = get_junkyard_level(level_name)
     await ctx.respond(embed=embed)
 
 @junkyard.command(name="list_junkyard_levels", description="Lists all junkyard levels (ordered by additon date, not difficulty)")

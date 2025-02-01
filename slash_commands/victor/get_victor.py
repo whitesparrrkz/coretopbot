@@ -2,7 +2,10 @@ import discord
 import requests
 import os
 
+# possibly change to async http here as a lot of http requests are being called
+
 def get_victor(name):
+
     url = f"http://localhost:8080/coretop/api/level/getPlayerTopLevels?player={name}&num=5"
     embedFailure = discord.Embed(title="Get Victor Failed", color=discord.Colour.red())
     try:

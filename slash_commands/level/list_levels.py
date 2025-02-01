@@ -1,35 +1,9 @@
 import discord
 import requests
+from utils.list_buttons import ListButtons
 
-level_range = 10
-
-class ListButtons(discord.ui.View):
-    def __init__(self, timeout = 180):
-        super().__init__()
-
-        self.pos = 1
-
-    @discord.ui.button(style=discord.ButtonStyle.primary, label="<") 
-    async def button1_callback(self, button, interaction: discord.Interaction):
-        if self.pos-level_range < 1: 
-            await interaction.response.defer()
-            return
-        self.pos -= level_range
-        levels, victors = getLevels(self.pos)
-        await interaction.response.edit_message(embed=makeEmbed(levels, victors, self.pos))
-
-    @discord.ui.button(style=discord.ButtonStyle.primary, label=">") 
-    async def button2_callback(self, button, interaction):
-        self.pos += level_range
-        levels, victors = getLevels(self.pos)
-        if levels == None:
-            self.pos -= level_range
-            await interaction.response.defer()
-            return
-        await interaction.response.edit_message(embed=makeEmbed(levels, victors, self.pos))
-
-def getLevels(pos: int):
-    url = f"http://localhost:8080/coretop/api/level/getLevelsByRange?position1={pos}&position2={pos+level_range-1}"
+def getLevels(pos, level_range):
+    url = f"http://localhost:8080/coretop/api/level/getLevelsByRange?position={pos}&length={level_range}"
     victors = []
     try:
         response = requests.get(url)
@@ -49,15 +23,15 @@ def getLevels(pos: int):
             except ValueError:
                 victors.append("None")
     except requests.exceptions.RequestException as e:
-        return None, None
+        return [None, None]
     
-    return levels, victors
+    return [levels, victors]
 
-def makeEmbed(levels, victors, pos):
+def makeEmbed(levels, victors, pos, level_range):
     embed = discord.Embed(title="The CORETOP List", color=discord.Colour.blue())
 
     embed.add_field(name="Levels:", value="", inline=False)
-    if levels != None:
+    if levels != None or victors != None:
         for i in range(0, len(levels)): 
             embed.add_field(name=f"**{str(levels[i]["level_position"])}.** `{levels[i]["level_name"]}` **-** {levels[i]["level_creator"]}", value=f"*First Victor:* {victors[i]}", inline=False)
 
@@ -65,5 +39,6 @@ def makeEmbed(levels, victors, pos):
     return embed
 
 def list_levels():
-    levels, victors = getLevels(1)
-    return makeEmbed(levels, victors, 1), ListButtons()
+    level_range = 10
+    levels, victors = getLevels(1, level_range)
+    return makeEmbed(levels, victors, 1, level_range), ListButtons(level_range, getLevels, makeEmbed)

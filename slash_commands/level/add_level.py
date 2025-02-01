@@ -40,7 +40,7 @@ class AddLevelModal(discord.ui.Modal):
             embedFailure.add_field(name="Invalid Tier", value=self.children[3].value)
 
         #TODO improve url error handling
-        if (self.children[4].value)[0:17] != "https://youtu.be/":
+        if (self.children[4].value)[0:17] != "https://youtu.be/" or len(self.children[4].value) != 28:
             failed = True
             embedFailure.add_field(name="Invalid Video URL", value=self.children[4].value)
 
