@@ -1,6 +1,7 @@
 import discord.ext.commands
 from dotenv import load_dotenv
 import os
+import logging
 import discord
 import discord.ext
 
@@ -21,6 +22,8 @@ from slash_commands.junkyard.get_junkyard_level import get_junkyard_level
 from slash_commands.junkyard.list_junkyard_levels import list_junkyard_levels
 from slash_commands.junkyard.delete_junkyard_level import delete_junkyard_level
 
+from slash_commands.silly.play_guesser import play_guesser
+
 load_dotenv()
 Token: str = os.getenv("DISCORD_TOKEN")
 
@@ -35,6 +38,26 @@ announcements_id = 1332912849705631795
 level = discord.SlashCommandGroup("level", "everything that deals with normal levels")
 victor = discord.SlashCommandGroup("victor", "everything that deals with victors")
 junkyard = discord.SlashCommandGroup("junkyard", "everything that deals with junkyard levels")
+silly = discord.SlashCommandGroup("silly", "fun stuff")
+
+@bot.event
+async def on_ready():
+    print("Bot is running.")
+
+@bot.event
+async def on_application_command_error(ctx: discord.ApplicationContext, err):
+    embed = discord.Embed(title="Command Failed", color=discord.Colour.red())
+    failed = False
+    if isinstance(err, commands.MissingRole):
+        embed.add_field(name="Missing role", value=f"{err}")
+    else:
+        failed = True
+        logging.error(f"Error occurred in command {ctx.command}: {err}")
+        embed.add_field(name="something fucked up", value=f"idk {err}")
+
+    await ctx.respond(embed=embed, ephemeral=True)
+    if failed:
+        raise err
 
 @level.command(name="get_level_by_position", description="Gets a level by list position")
 @discord.option("level_position", type=discord.SlashCommandOptionType.integer)
@@ -141,12 +164,16 @@ async def delete_junkyard_level_cmd(ctx: discord.ApplicationContext, level_name)
     embed = delete_junkyard_level(level_name)
     await ctx.respond(embed=embed)
 
+@silly.command(name="play_guesser", description="Starts a guesser game")
+async def play_guesser_cmd(ctx: discord.ApplicationContext):
+    await play_guesser(ctx, bot)
+
 bot.add_application_command(level)
 bot.add_application_command(victor)
 bot.add_application_command(junkyard)
+bot.add_application_command(silly)
 
 def main():
-    print("Bot is running.")
     bot.run(token=Token)
 
 if __name__ == "__main__":

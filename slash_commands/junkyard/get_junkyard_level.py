@@ -41,7 +41,8 @@ def makeEmbed(level, victors):
         victorsstr += f"{i}. {victor["victor_name"]}\n"
         i += 1
     embed.add_field(name="Level Tier", value=level["level_tier"], inline=True)
-    embed.add_field(name="Level Victors", value=victorsstr, inline=True)
+    embed.add_field(name="Video Link", value=level["level_video"], inline=True)
+    embed.add_field(name="Level Victors", value=victorsstr, inline=False)
     embed.set_image(url=get_video_thumbnail(level["level_video"]))
 
     return embed
