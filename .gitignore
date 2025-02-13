@@ -3,3 +3,6 @@ __pycache__
 
 resources/*
 !resources/
+
+slash_commands/silly/cache/*
+
