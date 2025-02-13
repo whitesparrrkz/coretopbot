@@ -39,7 +39,9 @@ class VideoManager:
             
     # (Level, discord.File)
     async def get_level(self):
+        print("The FUC")
         info = await self.video_queue.get()
+        print("IJEIJJIEDJIJ")
         with open(os.path.join(self.cache_path, f"{info[1]}_loop.gif"), 'rb') as img:
             return (info[0], discord.File(img, filename=f"{info[1]}.gif"))
 
@@ -75,7 +77,6 @@ class VideoManager:
                 random_video_time = random.uniform(0, duration)
                 frames.append(self._get_frame(video_path, random_video_time, width, height, video_time+f"_{i+1}"))
             await asyncio.gather(*frames)
-            await asyncio.sleep(5)
             await self._make_gif(video_time)
             return video_info
         except Exception as e:

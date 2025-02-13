@@ -7,6 +7,7 @@ from slash_commands.silly.video_manager import VideoManager
 async def play_guesser(ctx: discord.ApplicationContext, bot: discord.Bot, video_manager: VideoManager):
     embed = discord.Embed(title="Guess the level!", color=discord.Colour.blue())
     level, file = await video_manager.get_level()
+    print("EHDIIHDIHUEIHUEDHIUDHEIDHEIU")
     await ctx.respond(embed=embed, file=file)
     timeout = 5
     end_time = asyncio.get_event_loop().time() + timeout  

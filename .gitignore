@@ -5,4 +5,5 @@ resources/*
 !resources/
 
 slash_commands/silly/cache/*
+!slash_commands/silly/cache/
 

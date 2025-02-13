@@ -7,4 +7,6 @@ the api its calling for levels n stuff isnt currently online and is on localhost
 the requirements are in requirements.txt
 its also needed to install gifski and add a path variable to the directory containing the binary
 
+dont expect this to be good code lmao, i suck
+
 thanks
