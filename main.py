@@ -170,8 +170,9 @@ async def delete_junkyard_level_cmd(ctx: discord.ApplicationContext, level_name)
     await ctx.respond(embed=embed)
 
 @silly.command(name="play_guesser", description="Starts a guesser game")
-async def play_guesser_cmd(ctx: discord.ApplicationContext):
-    await play_guesser(ctx, bot, video_manager)
+@discord.option("is_gif", type=discord.SlashCommandOptionType.boolean)
+async def play_guesser_cmd(ctx: discord.ApplicationContext, is_gif):
+    await play_guesser(ctx, bot, video_manager, is_gif)
 
 bot.add_application_command(level)
 bot.add_application_command(victor)

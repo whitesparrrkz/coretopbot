@@ -3,16 +3,17 @@ import asyncio
 
 import discord.ext
 from slash_commands.silly.video_manager import VideoManager
+from utils.get_discord_file import get_tier_png
 
-async def play_guesser(ctx: discord.ApplicationContext, bot: discord.Bot, video_manager: VideoManager):
+async def play_guesser(ctx: discord.ApplicationContext, bot: discord.Bot, video_manager: VideoManager, is_gif):
+    level, file = await video_manager.get_level(is_gif)
     embed = discord.Embed(title="Guess the level!", color=discord.Colour.blue())
-    level, file = await video_manager.get_level()
-    print("EHDIIHDIHUEIHUEDHIUDHEIDHEIU")
-    await ctx.respond(embed=embed, file=file)
+    embed.set_image(url="attachment://" + file.filename)
+    await ctx.respond(embed=embed, files=[file])
     timeout = 5
     end_time = asyncio.get_event_loop().time() + timeout  
 
-    def check(message):
+    def check(message: discord.Message):
         return message.channel == ctx.channel and not message.author.bot
     win = False
     while asyncio.get_event_loop().time() < end_time:

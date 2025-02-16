@@ -17,14 +17,14 @@ class ListButtons(discord.ui.View):
     @discord.ui.button(style=discord.ButtonStyle.primary, label="<") 
     async def button1_callback(self, button, interaction: discord.Interaction):
         if self.pos - self.level_range <= 0:
-            await interaction.response.defer
+            await interaction.response.defer()
             return
         self.pos -= self.level_range
         info: list = self.get_info(self.pos, self.level_range)
         await interaction.response.edit_message(embed=self.make_embed(*info, self.pos, self.level_range))
 
     @discord.ui.button(style=discord.ButtonStyle.primary, label=">") 
-    async def button2_callback(self, button, interaction):
+    async def button2_callback(self, button, interaction: discord.Interaction):
         self.pos += self.level_range
         info: list = self.get_info(self.pos, self.level_range)
         await interaction.response.edit_message(embed=self.make_embed(*info, self.pos, self.level_range))

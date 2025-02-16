@@ -8,6 +8,7 @@ import random
 import re
 import glob
 import discord
+import io
 
 class VideoManager:
     def __init__(self, cache_size: int):
@@ -38,12 +39,19 @@ class VideoManager:
             await asyncio.sleep(1)
             
     # (Level, discord.File)
-    async def get_level(self):
-        print("The FUC")
+    async def get_level(self, is_gif):
         info = await self.video_queue.get()
-        print("IJEIJJIEDJIJ")
-        with open(os.path.join(self.cache_path, f"{info[1]}_loop.gif"), 'rb') as img:
-            return (info[0], discord.File(img, filename=f"{info[1]}.gif"))
+        if is_gif:
+            with open(os.path.join(self.cache_path, f"{info[1]}_loop.gif"), 'rb') as img:
+                img_bytes = img.read()
+            ret = (info[0], discord.File(io.BytesIO(img_bytes), filename=f"{info[1]}.gif"))
+        else:
+            with open(os.path.join(self.cache_path, f"{info[1]}_1.png"), 'rb') as img:
+                img_bytes = img.read()
+            ret = (info[0], discord.File(io.BytesIO(img_bytes), filename=f"{info[1]}.png"))
+
+        self._clear_time_from_cache(info[1])
+        return ret
 
     def _clear_cache(self):
         for file_name in os.listdir(self.cache_path):
@@ -53,7 +61,6 @@ class VideoManager:
     def _clear_time_from_cache(self, time):
         files = glob.glob(os.path.join(self.cache_path, f"{time}*"))
         for file in files:
-            print(f"Removed {file} with time {time}")
             os.remove(file)
 
     async def _wait_for_file(self, file_name):
@@ -83,9 +90,9 @@ class VideoManager:
             print(f"error: {e}")
             return (None, time)
 
-    async def _download_video(self, time):
+    async def _download_video(self, time, include_junkyard):
         try:
-            url = f"http://localhost:8080/coretop/api/level/getRandomLevel?junkyard=false"
+            url = f"http://localhost:8080/coretop/api/level/getRandomLevel?junkyard={include_junkyard}"
             response = requests.get(url)
             if response.status_code != 200:
                 raise requests.exceptions.RequestException()
