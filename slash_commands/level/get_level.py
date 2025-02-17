@@ -1,7 +1,7 @@
 import discord
 import requests
 import os
-from utils.get_video_thumbnail import get_video_thumbnail
+from utils.video_link import get_video_thumbnail
 
 def get_level_by_position(level_position: int):
     url = f"http://localhost:8080/coretop/api/level/getLevelByPosition?position={level_position}"
@@ -92,7 +92,7 @@ def makeEmbed(level, victors):
     embed.add_field(name="Level Tier", value=level["level_tier"], inline=True)
     embed.add_field(name="Level Victors", value=victorsstr, inline=True)
     embed.add_field(name="Level ID", value=level["level_id"], inline=True)
-    embed.add_field(name="Video Link", value=level["level_video"], inline=True)
+    embed.add_field(name="Video Link", value=f"{level["level_video"]} (start_trim={level["start_trim"]},end_trim={level["end_trim"]})", inline=True)
     embed.set_image(url=get_video_thumbnail(level["level_video"]))
 
     return embed

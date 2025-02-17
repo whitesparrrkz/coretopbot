@@ -22,7 +22,7 @@ from slash_commands.junkyard.get_junkyard_level import get_junkyard_level
 from slash_commands.junkyard.list_junkyard_levels import list_junkyard_levels
 from slash_commands.junkyard.delete_junkyard_level import delete_junkyard_level
 
-from slash_commands.silly.play_guesser import play_guesser
+from slash_commands.silly.play_guesser import play_guesser, make_options
 from slash_commands.silly.video_manager import VideoManager
 
 load_dotenv()
@@ -60,6 +60,7 @@ async def on_application_command_error(ctx: discord.ApplicationContext, err):
     else:
         failed = True
         embed.add_field(name="something fucked up", value=f"idk {err}")
+    embed.add_field(name="FUCK", value="YOU")
     await ctx.respond(embed=embed, ephemeral=True)
     if failed:
         raise err
@@ -146,10 +147,12 @@ async def pop_junkyard_victor_cmd(ctx: discord.ApplicationContext, level_name):
 
 @junkyard.command(name="add_junkyard_level", description="Adds a new junkyard level (Easy/Medium demons)")
 @discord.option("level_name", type=discord.SlashCommandOptionType.string)
-@discord.option("level_tier", type=discord.SlashCommandOptionType.string)
+@discord.option("level_tier", type=discord.SlashCommandOptionType.integer, min_value=1, max_value=2)
 @discord.option("level_url", type=discord.SlashCommandOptionType.string)
-async def add_junkyard_level_cmd(ctx: discord.ApplicationContext, level_name, level_tier, video_url):
-    embed = add_junkyard_level(level_name, level_tier, video_url)
+@discord.option("start_trim", type=discord.SlashCommandOptionType.integer, min_value=0)
+@discord.option("end_trim", type=discord.SlashCommandOptionType.integer, min_value=0)
+async def add_junkyard_level_cmd(ctx: discord.ApplicationContext, level_name, level_tier, video_url, start_trim, end_trim):
+    embed = add_junkyard_level(level_name, level_tier, video_url, start_trim, end_trim)
     await ctx.respond(embed=embed)
 
 @junkyard.command(name="get_junkyard_level", description="Gets a junkyard level by name")
@@ -170,9 +173,12 @@ async def delete_junkyard_level_cmd(ctx: discord.ApplicationContext, level_name)
     await ctx.respond(embed=embed)
 
 @silly.command(name="play_guesser", description="Starts a guesser game")
+@discord.option("include_junkyard", type=discord.SlashCommandOptionType.boolean)
 @discord.option("is_gif", type=discord.SlashCommandOptionType.boolean)
-async def play_guesser_cmd(ctx: discord.ApplicationContext, is_gif):
-    await play_guesser(ctx, bot, video_manager, is_gif)
+@discord.option("time_limit", type=discord.SlashCommandOptionType.integer, min_value=3, max_value=20)
+async def play_guesser_cmd(ctx: discord.ApplicationContext, include_junkyard, is_gif, time_limit):
+    options = make_options(include_junkyard, is_gif, time_limit)
+    await play_guesser(ctx, None, bot, video_manager, options)
 
 bot.add_application_command(level)
 bot.add_application_command(victor)

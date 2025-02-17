@@ -33,7 +33,7 @@ def makeEmbed(levels, victors, pos, level_range):
     embed.add_field(name="Levels:", value="", inline=False)
     if levels != None or victors != None:
         for i in range(0, len(levels)): 
-            embed.add_field(name=f"**{str(levels[i]["level_position"])}.** `{levels[i]["level_name"]}` **-** {levels[i]["level_creator"]}", value=f"*First Victor:* {victors[i]}", inline=False)
+            embed.add_field(name=f"**{str(levels[i]["level_position"])}.** `{levels[i]["level_name"]}` {{T{levels[i]["level_tier"]}}} **-** {levels[i]["level_creator"]}", value=f"*First Victor:* {victors[i]}", inline=False)
 
     embed.set_footer(text=f"Showing levels {pos}-{pos+level_range-1}")
     return embed

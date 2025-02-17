@@ -14,33 +14,46 @@ class VideoManager:
     def __init__(self, cache_size: int):
         self.cache_size = cache_size
         # tuple of (Level, time)
-        self.video_queue = asyncio.Queue(maxsize=cache_size)
+        self.normal_queue = asyncio.Queue(maxsize=cache_size)
+        self.junkyard_queue = asyncio.Queue(maxsize=cache_size)
         self.cache_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cache")
 
     async def start_cache(self):
         self._clear_cache()
         while True:
-            size = self.video_queue.qsize()
-            if size < self.cache_size: 
+            normal_size = self.normal_queue.qsize()
+            junkyard_size = self.junkyard_queue.qsize()
+            if normal_size < self.cache_size or junkyard_size < self.cache_size: 
                 video_infos = []
                 # download enough videos to fully fill cache
-                for _ in range(0, self.cache_size-size):
-                    video_infos.append(self._get_and_process_video())
+                for _ in range(0, self.cache_size-normal_size):
+                    video_infos.append(self._get_and_process_video(False))
+                for _ in range(0, self.cache_size-junkyard_size):
+                    video_infos.append(self._get_and_process_video(True))
                 video_infos = await asyncio.gather(*video_infos)
                 
                 for video_info in video_infos:
-                    print(video_info)
                     if video_info[0] == None:
                         # if failed, delete any files it may have made
                         self._clear_time_from_cache(video_info[1])
                         continue
-                    await self.video_queue.put((video_info[0], video_info[1]))
-                    print(f"Added {video_info[0]["level_name"]} to the video cache")
+                    # if junkyard queue:
+                    if video_info[2]:
+                        await self.junkyard_queue.put((video_info[0], video_info[1]))
+                        print(f"Added {video_info[0]["level_name"]} to the junkyard cache")
+                    else:
+                        await self.normal_queue.put((video_info[0], video_info[1]))
+                        print(f"Added {video_info[0]["level_name"]} to the video cache")
+                    
             await asyncio.sleep(1)
             
     # (Level, discord.File)
-    async def get_level(self, is_gif):
-        info = await self.video_queue.get()
+    async def get_level(self, include_junkyard, is_gif):
+        info = None
+        if include_junkyard:
+            info = await self.junkyard_queue.get()
+        else:
+            info = await self.normal_queue.get()
         if is_gif:
             with open(os.path.join(self.cache_path, f"{info[1]}_loop.gif"), 'rb') as img:
                 img_bytes = img.read()
@@ -68,13 +81,14 @@ class VideoManager:
         while not os.path.exists(file_path):
             await asyncio.sleep(0.1)
 
-    async def _get_and_process_video(self):
+    async def _get_and_process_video(self, include_junkyard):
         # avoid levels having the same name in filesystem
         time = str(datetime.datetime.now(datetime.timezone.utc))
         time = re.sub('[^0-9]','', time)
 
         try:
-            video_info = await self._download_video(time)
+            #video_info is (level_info, time, include_junkyard)
+            video_info = await self._download_video(time, include_junkyard)
             video_time = video_info[1]
 
             video_path = self._get_path(video_time)
@@ -88,7 +102,7 @@ class VideoManager:
             return video_info
         except Exception as e:
             print(f"error: {e}")
-            return (None, time)
+            return (None, time, include_junkyard)
 
     async def _download_video(self, time, include_junkyard):
         try:
@@ -106,10 +120,9 @@ class VideoManager:
             }
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 await asyncio.to_thread(ydl.download, level["level_video"])
-                return (level, time)
+                return (level, time, include_junkyard)
         except Exception as e:
             print(f"Failed getting video: {e}")
-            raise e
         
     def _get_path(self, video_time):
         for ext in ['.mp4', '.webm']:

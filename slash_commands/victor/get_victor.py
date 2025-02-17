@@ -57,7 +57,7 @@ def get_victor(name):
     tiersstr = ""
     for tier in tier_count:
         if(tier_count[tier] != 0):
-            tiersstr += f"**{tier}:** `{tier_count[tier]}`\n"
+            tiersstr += f"**T{tier}:** `{tier_count[tier]}`\n"
     embed.add_field(name="Tier Stats", value=tiersstr, inline=False)
 
     file = get_tier_png(levels[0]["level_tier"])

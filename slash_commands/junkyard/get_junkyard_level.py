@@ -1,6 +1,6 @@
 import discord
 import requests
-from utils.get_video_thumbnail import get_video_thumbnail
+from utils.video_link import get_video_thumbnail
 
 def get_junkyard_level(level_name: str):
     try:

@@ -3,11 +3,6 @@ import requests
 
 from utils.list_buttons import ListButtons
 
-conv_dif = {
-    "medium": "Medium Demon",
-    "easy": "Easy Demon"
-}
-
 def getLevels(pos, level_range):
     url = f"http://localhost:8080/coretop/api/level/getJunkyardLevelsByRange?position={pos}&length={level_range}"
     try:
@@ -28,7 +23,7 @@ def makeEmbed(levels, pos, level_range):
 
     if levels != None:
         for level in levels: 
-            levelstr += f"`{level["level_name"]}` - {conv_dif[level["level_tier"]]}\n"
+            levelstr += f"`{level["level_name"]}` - T{level["level_tier"]}\n"
 
     embed.add_field(name="Levels:", value=levelstr, inline=False)
     embed.set_footer(text=f"Showing levels {pos}-{pos+level_range-1}")
