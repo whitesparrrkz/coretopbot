@@ -95,7 +95,12 @@ class VideoManager:
             duration, width, height = self._get_duration_and_width_and_heigh(video_path)
             frames = []
             for i in range(0, 3):
-                random_video_time = random.uniform(0, duration)
+                # get random video frame, accounting for any trims it has
+                auto_trim = duration*0.1
+                if random.randint(0,10) == 10:
+                    auto_trim = 0
+                print(f"Auto trim: {auto_trim}")
+                random_video_time = random.uniform(0+auto_trim+video_info[0]["start_trim"], duration-video_info[0]["end_trim"]-auto_trim)
                 frames.append(self._get_frame(video_path, random_video_time, width, height, video_time+f"_{i+1}"))
             await asyncio.gather(*frames)
             await self._make_gif(video_time)
@@ -171,9 +176,10 @@ class VideoManager:
                 "--quality", "100",
                 "-o", f"{self.cache_path}\\{video_time}_loop.gif",
                 *frames,
+                stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE
             )
-            stderr = await make_gif.communicate()
+            _, stderr = await make_gif.communicate()
             if make_gif.returncode != 0:
                 raise Exception(stderr)
         except Exception as e:

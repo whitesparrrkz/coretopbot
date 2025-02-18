@@ -11,7 +11,7 @@ def update_level_position(old_pos, new_pos):
     url = f"http://localhost:8080/coretop/api/level/updateLevelPosition?old_position={old_pos}&new_position={new_pos}"
 
     try:
-        response = requests.put(url, headers=headers)
+        response = requests.patch(url, headers=headers)
         if not response.status_code == 200:
             error_info = response.json()
             embedFailure = discord.Embed(title="Update Level Position Failed", color=discord.Colour.red())

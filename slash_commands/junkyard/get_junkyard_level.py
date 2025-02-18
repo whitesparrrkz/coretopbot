@@ -1,6 +1,6 @@
 import discord
 import requests
-from utils.video_link import get_video_thumbnail
+from utils.video_stuff import get_video_thumbnail
 
 def get_junkyard_level(level_name: str):
     try:
@@ -41,7 +41,7 @@ def makeEmbed(level, victors):
         victorsstr += f"{i}. {victor["victor_name"]}\n"
         i += 1
     embed.add_field(name="Level Tier", value=level["level_tier"], inline=True)
-    embed.add_field(name="Video Link", value=level["level_video"], inline=True)
+    embed.add_field(name="Video Link", value=f"{level["level_video"]} (start_trim={level["start_trim"]},end_trim={level["end_trim"]})", inline=True)
     embed.add_field(name="Level Victors", value=victorsstr, inline=False)
     embed.set_image(url=get_video_thumbnail(level["level_video"]))
 

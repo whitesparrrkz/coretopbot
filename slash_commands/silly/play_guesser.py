@@ -1,13 +1,19 @@
+from dotenv import load_dotenv
+import os
 import discord
 import asyncio
+import requests
 
 import discord.ext
 from slash_commands.silly.video_manager import VideoManager
 
 channels: set = set()
 
+load_dotenv()
+coretop_Token: str = os.getenv("CORETOP_TOKEN")
+
 # is_interaction, False when command is called via slash command, True if calling the command 
-async def play_guesser(ctx: discord.ApplicationContext, interaction: discord.Interaction, bot: discord.Bot, video_manager: VideoManager, options):
+async def play_guesser(ctx: discord.ApplicationContext, interaction: discord.Interaction, bot: discord.Bot, video_manager: VideoManager, options, player_info):
     if ctx is not None:
         channel_id = ctx.channel_id
         if channel_id in channels:
@@ -73,13 +79,74 @@ async def play_guesser(ctx: discord.ApplicationContext, interaction: discord.Int
             except asyncio.TimeoutError:
                 pass
         if win:
+            # make player info (player_id, streak)
+            player_id = player_message.author.id
+            if player_info:
+                if player_info[0] == player_id:
+                    player_info[1] += 1
+                else:
+                    player_info = [player_id, 1]
+            else:
+                player_info = [player_id, 1]
+
             embed = discord.Embed(title="Correct!", color=discord.Colour.green())
-            embed.add_field(name="", value=f"The level was: {level["level_name"]}")
-            await player_message.reply(embed=embed, view=PlaybackButton(bot, video_manager, options))
+            embed.add_field(name="Level", value=level["level_name"])
+            
+            # check if player exists, if they do, update their info, if not, create new one
+            headers = {"token": coretop_Token}
+            points_gained = points * (1.2 ** (player_info[1]-1))
+            data = {
+                    "user_id": player_id,
+                    # points gained from current game with streak bonus added
+                    "points": points_gained,
+                    "best_guess": 0,
+                    "highest_streak": 1,
+            }
+            try:
+                url = f"http://localhost:8080/coretop/api/guesserPlayer/getGuesserPlayerByUserId?user_id={player_id}"
+                response = requests.get(url)
+
+                if response.status_code != 200:
+                    raise requests.exceptions.RequestException()
+                
+                if response.content:
+                    player = response.json()
+                    url = "http://localhost:8080/coretop/api/guesserPlayer/updateGuesserPlayer"
+                    if points_gained > player["best_guess"]:
+                        data["best_guess"] = points_gained
+                    else:
+                        data["best_guess"] = player["best_guess"]
+
+                    if player_info[1] > player["highest_streak"]:
+                        data["highest_streak"] = player_info[1]
+                    else:
+                        data["highest_streak"] = player["highest_streak"]
+
+                    # adding player["points"] are the old points before the game, adding together is total of all points
+                    data["points"] += player["points"]
+                    response = requests.put(url, json=data, headers=headers)
+                    if response.status_code != 200:
+                        raise requests.exceptions.RequestException()
+                else:
+                    url = "http://localhost:8080/coretop/api/guesserPlayer/addGuesserPlayer"
+                    data["best_guess"] = data["points"]
+                    response = requests.post(url, json=data, headers=headers)
+                    if response.status_code != 200:
+                        raise requests.exceptions.RequestException()
+            except requests.exceptions.RequestException as e:
+                embed.add_field(name="Error", value=f"Player data was not updated because: {e}")
+                raise e
+            pointsstr = f"{points_gained:.2f}"
+            if points_gained-points != 0:
+                pointsstr += f"Streak Bonus: {points_gained-points:.2f}"
+            embed.add_field(name="Points", value=pointsstr)
+            embed.set_footer(text=f"streak = {player_info[1]}")
+            await player_message.reply(embed=embed, view=PlaybackButton(bot, video_manager, options, player_info))
         else:
+            player_info = None
             embed = discord.Embed(title="lol", color=discord.Colour.light_gray())
             embed.add_field(name="", value="you suck")
-            await image_message.reply(embed=embed, view=PlaybackButton(bot, video_manager, options))
+            await image_message.reply(embed=embed, view=PlaybackButton(bot, video_manager, options, player_info))
     finally:
         channels.remove(channel_id)
 
@@ -106,12 +173,13 @@ def make_options(include_junkyard, is_gif, time_limit):
     return options
 
 class PlaybackButton(discord.ui.View):
-    def __init__(self, bot: discord.Bot, video_manager, options):
+    def __init__(self, bot: discord.Bot, video_manager, options, player_info):
         super().__init__()
         self.bot = bot
         self.video_manager = video_manager
         self.options = options
+        self.player_info = player_info
     
     @discord.ui.button(style=discord.ButtonStyle.secondary, label="Play Again")
     async def callback(self, button, interaction: discord.Interaction):
-        await play_guesser(None, interaction, self.bot, self.video_manager, self.options)
+        await play_guesser(None, interaction, self.bot, self.video_manager, self.options, self.player_info)

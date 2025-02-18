@@ -1,7 +1,7 @@
 import discord
 import requests
 import os
-from utils.video_link import get_video_thumbnail
+from utils.video_stuff import get_video_thumbnail
 
 def get_level_by_position(level_position: int):
     url = f"http://localhost:8080/coretop/api/level/getLevelByPosition?position={level_position}"

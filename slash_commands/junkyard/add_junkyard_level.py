@@ -2,12 +2,12 @@ from dotenv import load_dotenv
 import os
 import discord
 import requests
-from utils.video_link import validate_video_link
+from utils.video_stuff import validate_video_link, validate_trim
 
 load_dotenv()
 coretop_Token: str = os.getenv("CORETOP_TOKEN")
 
-def add_junkyard_level(name, tier, video, start_trim, end_trim):
+async def add_junkyard_level(name, tier, video, start_trim, end_trim):
     embedFailure = discord.Embed(title="Add Junkyard Level Failed", color=discord.Colour.red())
     failed = False
     
@@ -15,6 +15,9 @@ def add_junkyard_level(name, tier, video, start_trim, end_trim):
         failed = True
         embedFailure.add_field(name="Invalid Video URL", value=video)
 
+    if not await validate_trim(video, start_trim, end_trim):
+        failed = True
+        embedFailure.add_field(name="Invalud trim (either negative or trims too much)", value=f"(start_trim={start_trim},end_trim={end_trim})")
     if failed:
         return embedFailure
     

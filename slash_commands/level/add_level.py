@@ -4,7 +4,7 @@ import discord
 import requests
 
 from utils.tiers import get_tiers
-from utils.video_link import validate_video_link
+from utils.video_stuff import validate_video_link, validate_trim
 
 load_dotenv()
 coretop_Token: str = os.getenv("CORETOP_TOKEN")
@@ -27,6 +27,7 @@ class AddLevelModal(discord.ui.Modal):
         self.add_item(discord.ui.InputText(label="Level Video URL (MUST BE youtu.be)", max_length=80, placeholder="https://youtu.be/"))
 
     async def callback(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         split1 = self.children[0].value.split(';')
         split2 = self.children[1].value.split(';')
         split3 = self.children[3].value.split(';')
@@ -47,9 +48,14 @@ class AddLevelModal(discord.ui.Modal):
         if not validate_video_link(self.children[4].value):
             failed = True
             embedFailure.add_field(name="Invalid Video URL", value=self.children[4].value)
+            
+        #validate_trim() function from video_stuff too overkill for a coretop admin command
+        if int(split3[0]) < 0 or int(split3[1]) < 0 or split3[0].isdigit() or split3[1].isdigit():
+            failed = True
+            embedFailure.add_field(name="Invalid trim (negative)", value=f"(start_trim={split3[0]},end_trim={split3[1]})")
 
         if failed:
-            await interaction.response.send_message(embed=embedFailure)
+            await interaction.followup.send(embed=embedFailure)
             return
         
         url = f"http://localhost:8080/coretop/api/level/addLevel"
@@ -88,7 +94,7 @@ class AddLevelModal(discord.ui.Modal):
         embed.add_field(name="Start Trim", value=split3[0])
         embed.add_field(name="End Trim", value=split3[1])
 
-        await interaction.response.send_message(embed=embed)
+        await interaction.followup.send(embed=embed)
         if self.send_announcement:
             channel = self.bot.get_channel(self.announcements_id)
             await channel.send("TEST level added because i gott a finish this latr when more levels")
