@@ -99,7 +99,6 @@ class VideoManager:
                 auto_trim = duration*0.1
                 if random.randint(0,10) == 10:
                     auto_trim = 0
-                print(f"Auto trim: {auto_trim}")
                 random_video_time = random.uniform(0+auto_trim+video_info[0]["start_trim"], duration-video_info[0]["end_trim"]-auto_trim)
                 frames.append(self._get_frame(video_path, random_video_time, width, height, video_time+f"_{i+1}"))
             await asyncio.gather(*frames)
