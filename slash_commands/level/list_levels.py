@@ -27,7 +27,7 @@ def getLevels(pos, level_range):
     
     return [levels, victors]
 
-def makeEmbed(levels, victors, pos, level_range):
+def makeEmbed(levels, victors, pos, level_range, *_):
     embed = discord.Embed(title="The CORETOP List", color=discord.Colour.blue())
 
     embed.add_field(name="Levels:", value="", inline=False)

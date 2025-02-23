@@ -26,7 +26,6 @@ async def play_guesser(ctx: discord.ApplicationContext, interaction: discord.Int
             embed = discord.Embed(title="There's already a guesser game happening in this channel, mr silly", color=discord.Colour.red())
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
-
     channels.add(channel_id)
     try:
         if ctx is not None:
@@ -109,36 +108,18 @@ async def play_guesser(ctx: discord.ApplicationContext, interaction: discord.Int
                 if response.status_code != 200:
                     raise requests.exceptions.RequestException()
                 
+                # if content, player already exists, however if none, create new player
                 if response.content:
-                    player = response.json()
-                    url = "http://localhost:8080/coretop/api/guesserPlayer/updateGuesserPlayer"
-                    if points_gained > player["best_guess"]:
-                        data["best_guess"] = points_gained
-                    else:
-                        data["best_guess"] = player["best_guess"]
-
-                    if player_info[1] > player["highest_streak"]:
-                        data["highest_streak"] = player_info[1]
-                    else:
-                        data["highest_streak"] = player["highest_streak"]
-
-                    # adding player["points"] are the old points before the game, adding together is total of all points
-                    data["points"] += player["points"]
-                    response = requests.put(url, json=data, headers=headers)
-                    if response.status_code != 200:
-                        raise requests.exceptions.RequestException()
+                    update_player(headers, data, response.json(), points_gained, player_info)
                 else:
-                    url = "http://localhost:8080/coretop/api/guesserPlayer/addGuesserPlayer"
-                    data["best_guess"] = data["points"]
-                    response = requests.post(url, json=data, headers=headers)
-                    if response.status_code != 200:
-                        raise requests.exceptions.RequestException()
+                    add_player(headers, data)
+
             except requests.exceptions.RequestException as e:
                 embed.add_field(name="Error", value=f"Player data was not updated because: {e}")
                 raise e
             pointsstr = f"{points_gained:.2f}"
             if points_gained-points != 0:
-                pointsstr += f"Streak Bonus: {points_gained-points:.2f}"
+                pointsstr += f"\nStreak Bonus: {points_gained-points:.2f}"
             embed.add_field(name="Points", value=pointsstr)
             embed.set_footer(text=f"streak = {player_info[1]}")
             await player_message.reply(embed=embed, view=PlaybackButton(bot, video_manager, options, player_info))
@@ -149,6 +130,31 @@ async def play_guesser(ctx: discord.ApplicationContext, interaction: discord.Int
             await image_message.reply(embed=embed, view=PlaybackButton(bot, video_manager, options, player_info))
     finally:
         channels.remove(channel_id)
+
+def update_player(headers, data: dict, player, points_gained, player_info):
+    url = "http://localhost:8080/coretop/api/guesserPlayer/updateGuesserPlayer"
+    if points_gained > player["best_guess"]:
+        data["best_guess"] = points_gained
+    else:
+        data["best_guess"] = player["best_guess"]
+
+    if player_info[1] > player["highest_streak"]:
+        data["highest_streak"] = player_info[1]
+    else:
+        data["highest_streak"] = player["highest_streak"]
+
+    # adding player["points"] are the old points before the game, adding together is total of all points
+    data["points"] += player["points"]
+    response = requests.put(url, json=data, headers=headers)
+    if response.status_code != 200:
+        raise requests.exceptions.RequestException()
+    
+def add_player(headers, data):
+    url = "http://localhost:8080/coretop/api/guesserPlayer/addGuesserPlayer"
+    data["best_guess"] = data["points"]
+    response = requests.post(url, json=data, headers=headers)
+    if response.status_code != 200:
+        raise requests.exceptions.RequestException()
 
 def make_options(include_junkyard, is_gif, time_limit):
     options: dict = {}

@@ -17,7 +17,7 @@ def getLevels(pos, level_range):
     
     return [levels]
 
-def makeEmbed(levels, pos, level_range):
+def makeEmbed(levels, pos, level_range, *_):
     embed = discord.Embed(title="The CORETOP Junkyard List", color=discord.Colour.blue())
     levelstr = ""
 

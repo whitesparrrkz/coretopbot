@@ -24,6 +24,8 @@ from slash_commands.junkyard.delete_junkyard_level import delete_junkyard_level
 
 from slash_commands.silly.play_guesser import play_guesser, make_options
 from slash_commands.silly.video_manager import VideoManager
+from slash_commands.silly.get_guesser_player import get_guesser_player
+from slash_commands.silly.list_guesser_players import list_guesser_players
 
 load_dotenv()
 Token: str = os.getenv("DISCORD_TOKEN")
@@ -34,8 +36,6 @@ intents.message_content = True
 bot = discord.Bot(intents=intents)
 
 commands = discord.ext.commands
-
-guilds = [1330730208046743652]
 
 announcements_id = 1332912849705631795
 
@@ -60,29 +60,33 @@ async def on_application_command_error(ctx: discord.ApplicationContext, err):
     else:
         failed = True
         embed.add_field(name="something fucked up", value=f"idk {err}")
-    await ctx.send(embed=embed)
+    await ctx.respond(embed=embed, ephemeral=True)
     if failed:
         raise err
 
 @level.command(name="get_level_by_position", description="Gets a level by list position")
 @discord.option("level_position", type=discord.SlashCommandOptionType.integer)
 async def get_level_by_position_cmd(ctx: discord.ApplicationContext, level_position: int):
+    await ctx.defer()
     embed = get_level_by_position(level_position)
     await ctx.respond(embed=embed)
 
 @level.command(name="get_level_by_name", description="Gets a level by level name")
 @discord.option("level_name", type=discord.SlashCommandOptionType.string)
 async def get_level_by_name_cmd(ctx: discord.ApplicationContext, level_name: str):
+    await ctx.defer()
     embed = get_level_by_name(level_name)
     await ctx.respond(embed=embed)
 
 @level.command(name="get_last_level", description="Gets the last level in the list (so easy...)")
 async def get_level_by_name_cmd(ctx: discord.ApplicationContext):
+    await ctx.defer()
     embed = get_last_level()
     await ctx.respond(embed=embed)
 
 @level.command(name="list_levels", description="Lists all Coretop levels")
 async def list_levels_cmd(ctx):
+    await ctx.defer()
     embed, view = list_levels()
     await ctx.respond(embed=embed,view=view)
 
@@ -90,6 +94,7 @@ async def list_levels_cmd(ctx):
 @discord.option("send_announcement", type=discord.SlashCommandOptionType.boolean)
 @commands.has_role("coretop admin")
 async def add_level_cmd(ctx: discord.ApplicationContext, send_announcement):
+    await ctx.defer()
     modal = add_level(bot, announcements_id, send_announcement)
     await ctx.send_modal(modal=modal)
 
@@ -97,6 +102,7 @@ async def add_level_cmd(ctx: discord.ApplicationContext, send_announcement):
 @discord.option("level_position", type=discord.SlashCommandOptionType.integer)
 @commands.has_role("coretop admin")
 async def delete_level_cmd(ctx: discord.ApplicationContext, level_position: int):
+    await ctx.defer()
     embed = delete_level(level_position)
     await ctx.respond(embed=embed)
 
@@ -105,6 +111,7 @@ async def delete_level_cmd(ctx: discord.ApplicationContext, level_position: int)
 @discord.option("new_position", type=discord.SlashCommandOptionType.integer)
 @commands.has_role("coretop admin")
 async def update_level_position_cmd(ctx: discord.ApplicationContext, old_position, new_position):
+    await ctx.defer()
     embed = update_level_position(old_position, new_position)
     await ctx.respond(embed=embed)
 
@@ -113,6 +120,7 @@ async def update_level_position_cmd(ctx: discord.ApplicationContext, old_positio
 @discord.option("level_position", type=discord.SlashCommandOptionType.integer)
 @commands.has_role("coretop admin")
 async def add_victor_by_level_position_cmd(ctx: discord.ApplicationContext, victor_name: str, level_position):
+    await ctx.defer()
     embed = add_victor(victor_name, level_position)
     await ctx.respond(embed=embed)
 
@@ -120,12 +128,14 @@ async def add_victor_by_level_position_cmd(ctx: discord.ApplicationContext, vict
 @discord.option("level_position", type=discord.SlashCommandOptionType.integer)
 @commands.has_role("coretop admin")
 async def pop_victor_by_level_position_cmd(ctx: discord.ApplicationContext, level_position):
+    await ctx.defer()
     embed = pop_victor(level_position)
     await ctx.respond(embed=embed)
 
 @victor.command(name="get_victor", description="Displays information about a victor")
 @discord.option("victor_name", type=discord.SlashCommandOptionType.string)
 async def get_victor_cmd(ctx: discord.ApplicationContext, victor_name: str):
+    await ctx.defer()
     embed, file = get_victor(victor_name)
     await ctx.respond(embed=embed, files=[file])
 
@@ -134,6 +144,7 @@ async def get_victor_cmd(ctx: discord.ApplicationContext, victor_name: str):
 @discord.option("level_name", type=discord.SlashCommandOptionType.string)
 @commands.has_role("coretop admin")
 async def add_junkyard_victor_cmd(ctx: discord.ApplicationContext, victor_name: str, level_name):
+    await ctx.defer()
     embed = add_junkyard_victor(victor_name, level_name)
     await ctx.respond(embed=embed)
 
@@ -141,6 +152,7 @@ async def add_junkyard_victor_cmd(ctx: discord.ApplicationContext, victor_name: 
 @discord.option("level_name", type=discord.SlashCommandOptionType.string)
 @commands.has_role("coretop admin")
 async def pop_junkyard_victor_cmd(ctx: discord.ApplicationContext, level_name):
+    await ctx.defer()
     embed = pop_junkyard_victor(level_name)
     await ctx.respond(embed=embed)
 
@@ -158,17 +170,20 @@ async def add_junkyard_level_cmd(ctx: discord.ApplicationContext, level_name, le
 @junkyard.command(name="get_junkyard_level", description="Gets a junkyard level by name")
 @discord.option("level_name", type=discord.SlashCommandOptionType.string)
 async def get_junkyard_level_cmd(ctx: discord.ApplicationContext, level_name):
+    await ctx.defer()
     embed = get_junkyard_level(level_name)
     await ctx.respond(embed=embed)
 
 @junkyard.command(name="list_junkyard_levels", description="Lists all junkyard levels (ordered by additon date, not difficulty)")
 async def list_junkyard_levels_cmd(ctx: discord.ApplicationContext):
+    await ctx.defer()
     embed, view = list_junkyard_levels()
     await ctx.respond(embed=embed,view=view)
 
 @junkyard.command(name="delete_junkyard_level", description="Deletes a junkyard level by a given name")
 @discord.option("level_name", type=discord.SlashCommandOptionType.string)
 async def delete_junkyard_level_cmd(ctx: discord.ApplicationContext, level_name):
+    await ctx.defer()
     embed = delete_junkyard_level(level_name)
     await ctx.respond(embed=embed)
 
@@ -179,6 +194,15 @@ async def delete_junkyard_level_cmd(ctx: discord.ApplicationContext, level_name)
 async def play_guesser_cmd(ctx: discord.ApplicationContext, include_junkyard, is_gif, time_limit):
     options = make_options(include_junkyard, is_gif, time_limit)
     await play_guesser(ctx, None, bot, video_manager, options, None)
+
+@silly.command(name="get_guesser_player", description="Gets a guesser player... duhhh")
+@discord.option("player", type=discord.SlashCommandOptionType.user)
+async def get_guesser_player_cmd(ctx: discord.ApplicationContext, player):
+    await get_guesser_player(ctx, player)
+
+@silly.command(name="list_guesser_players", description="Lists guesser players")
+async def get_guesser_player_cmd(ctx: discord.ApplicationContext):
+    await list_guesser_players(ctx, bot)
 
 bot.add_application_command(level)
 bot.add_application_command(victor)

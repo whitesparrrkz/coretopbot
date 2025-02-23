@@ -170,6 +170,7 @@ class VideoManager:
             for i in range(1,4):
                 await asyncio.wait_for(self._wait_for_file(f"{video_time}_{i}.png"), 2)
                 frames.append(f"{self.cache_path}\\{video_time}_{i}.png")
+            # use PATH variable for gifski instead
             make_gif = await asyncio.subprocess.create_subprocess_exec(
                 "C:\\Program Files\\gifski-1.32.0\\gifski.exe", "--fps", "1",
                 "--quality", "100",
