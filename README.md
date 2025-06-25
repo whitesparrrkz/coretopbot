@@ -1,6 +1,6 @@
 # Coretop Discord Bot
 
-This is a bot made for my Friends and I to use as a leaderboard for Geometry Dash levels we have completed with some other fun commands.
+This is a bot made with py-cord for my Friends and I to use as a leaderboard for Geometry Dash levels we have completed with some other fun commands.
 
 Pretty much, the main idea of the bot is that you are able to upload a level, give it a position on the leaderboard, and then assign victors to those levels. 
 This would show off the hardest levels we have completed, who has beaten the most levels, stuff like that!  
